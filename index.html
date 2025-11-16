@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunflowers Day & Night</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', cursive;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: transparent;
+            transition: background 1.5s ease;
+        }
+
+        body.started {
+            background: linear-gradient(to bottom, #87CEEB 0%, #B0D4E8 50%, #E0F6FF 100%);
+        }
+
+        body.started.night {
+            background: linear-gradient(to bottom, #0a0a1f 0%, #1a1a3e 50%, #2d1b4e 100%);
+        }
+
+        /* Start Screen */
+        .start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.8s ease;
+        }
+
+        .start-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .start-button {
+            padding: 20px 50px;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #FFD54F 0%, #FBC02D 50%, #F9A825 100%);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(251, 192, 45, 0.5);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .start-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(251, 192, 45, 0.7);
+        }
+
+        .start-button:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        /* Main Content */
+        .main-content {
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .main-content.visible {
+            opacity: 1;
+        }
+
+        /* Speech Bubbles */
+        .speech-bubble {
+            position: absolute;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            z-index: 100;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .speech-bubble.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        .bubble-left {
+            bottom: 480px;
+            left: 20%;
+            transform-origin: bottom left;
+        }
+
+        .bubble-left::after {
+            border-width: 0 0 15px 15px;
+            border-color: transparent transparent white transparent;
+            bottom: -15px;
+            right: 30px;
+        }
+
+        .bubble-right {
+            bottom: 480px;
+            right: 20%;
+            transform-origin: bottom right;
+        }
+
+        .bubble-right::after {
+            border-width: 0 15px 15px 0;
+            border-color: transparent white transparent transparent;
+            bottom: -15px;
+            left: 30px;
+        }
+
+        /* Toggle Switch Container */
+        .toggle-container {
+            position: absolute;
+            top: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 15px 25px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .toggle-label {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            transition: color 0.5s ease;
+        }
+
+        body.night .toggle-label {
+            color: #fff;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #ffd700;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.5s ease;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        body.night .toggle-switch {
+            background: #4a4a7a;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.5s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        body.night .toggle-slider {
+            transform: translateX(30px);
+        }
+
+        /* Sun */
+        .sun {
+            position: absolute;
+            top: 80px;
+            right: 100px;
+            width: 80px;
+            height: 80px;
+            background: #FFD700;
+            border-radius: 50%;
+            box-shadow: 0 0 40px #FFD700, 0 0 80px #FFA500;
+            opacity: 1;
+            transition: opacity 1.5s ease, transform 1.5s ease;
+        }
+
+        body.started.night .sun {
+            opacity: 0;
+            transform: translateY(-100px);
+        }
+
+        /* Moon */
+        .moon {
+            position: absolute;
+            top: 80px;
+            right: 100px;
+            width: 70px;
+            height: 70px;
+            background: #F0E68C;
+            border-radius: 50%;
+            box-shadow: 0 0 50px #F0E68C, 0 0 100px #E6D77F;
+            opacity: 0;
+            transition: opacity 1.5s ease, transform 1.5s ease;
+            transform: translateY(-100px);
+        }
+
+        body.started.night .moon {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Stars */
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+
+        body.started.night .stars {
+            opacity: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 3px white;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Ground */
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(to bottom, #8BC34A 0%, #7CB342 50%, #689F38 100%);
+            transition: background 1.5s ease;
+        }
+
+        body.started.night .ground {
+            background: linear-gradient(to bottom, #2d4a2b 0%, #1f3d1f 50%, #1a2f1a 100%);
+        }
+
+        /* Sunflowers Container */
+        .sunflowers-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 70px;
+        }
+
+        /* Individual Sunflower */
+        .sunflower {
+            position: relative;
+            width: 250px;
+            height: 480px;
+            transform-origin: bottom center;
+            transition: transform 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sunflower.left {
+            animation: sway 4s ease-in-out infinite alternate;
+        }
+
+        .sunflower.right {
+            animation: swayReverse 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes sway {
+            0%   { transform: rotate(-2deg); }
+            100% { transform: rotate(2.5deg); }
+        }
+
+        @keyframes swayReverse {
+            0%   { transform: rotate(2deg); }
+            100% { transform: rotate(-2.5deg); }
+        }
+
+        /* Night mode - sunflowers lean together */
+        body.started.night .sunflower.left {
+            animation: none;
+            transform: rotate(12deg) translateX(40px);
+            z-index: 1;
+        }
+
+        body.started.night .sunflower.right {
+            animation: none;
+            transform: rotate(-12deg) translateX(-40px);
+            z-index: 2;
+        }
+
+        /* Stem */
+        .stem {
+            position: absolute;
+            width: 34px;
+            height: 360px;
+            background: linear-gradient(to right, #2d5a1a 0%, #3e7a1f 50%, #2d5a1a 100%);
+            top: 38%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 25px;
+            box-shadow: inset -2px 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Leaves */
+        .leaf {
+            position: absolute;
+            width: 150px;
+            height: 85px;
+            background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 50%, #43A047 100%);
+            border-radius: 120px 0 120px 0;
+            box-shadow: 
+                inset -3px -3px 10px rgba(0, 0, 0, 0.2),
+                inset 3px 3px 10px rgba(150, 255, 150, 0.3),
+                0 3px 8px rgba(0, 0, 0, 0.25);
+            animation: leafMove 3s ease-in-out infinite alternate;
+            z-index: 6;
+            transition: all 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Leaf vein */
+        .leaf::before {
+            content: '';
+            position: absolute;
+            width: 70%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #43A047 50%, transparent);
+            top: 50%;
+            left: 15%;
+            transform: translateY(-50%);
+        }
+
+        @keyframes leafMove {
+            0%   { transform: rotate(var(--rot)) translateY(0); }
+            100% { transform: rotate(calc(var(--rot) + 3deg)) translateY(-4px); }
+        }
+
+        /* Left sunflower leaves */
+        .sunflower.left .leaf.leaf-1 { 
+            left: -50px; 
+            top: 68%;
+            --rot: 70deg; 
+        }
+        
+        .sunflower.left .leaf.leaf-2 { 
+            right: -45px; 
+            top: 77%;
+            --rot: 40deg; 
+        }
+
+        /* Right sunflower leaves */
+        .sunflower.right .leaf.leaf-1 { 
+            right: -50px; 
+            top: 68%;
+            --rot: -30deg;
+            transform: scaleX(-1) rotate(70deg);
+        }
+        
+        .sunflower.right .leaf.leaf-2 { 
+            left: -45px; 
+            top: 77%;
+            transform: scaleX(-1) rotate(40deg);
+        }
+
+        /* Night mode - leaves hug */
+        body.started.night .sunflower.left .leaf.leaf-1 {
+            animation: none;
+            transform: rotate(30deg) translateX(30px) translateY(-5px);
+        }
+
+        body.started.night .sunflower.left .leaf.leaf-2 {
+            animation: none;
+            transform: rotate(15deg) translateX(25px) translateY(10px);
+        }
+
+        body.started.night .sunflower.right .leaf.leaf-1 {
+            animation: none;
+            transform: scaleX(-1) rotate(30deg) translateX(30px) translateY(-5px);
+        }
+
+        body.started.night .sunflower.right .leaf.leaf-2 {
+            animation: none;
+            transform: scaleX(-1) rotate(15deg) translateX(25px) translateY(10px);
+        }
+
+        /* Petals */
+        .petal {
+            position: absolute;
+            width: 70px;
+            height: 150px;
+            background: linear-gradient(to bottom, #FFD54F 0%, #FBC02D 60%, #F9A825 100%);
+            border-radius: 50% 50% 0 0;
+            transform-origin: bottom center;
+            left: 50%;
+            top: 32%;
+            box-shadow: 
+                inset -2px -2px 8px rgba(249, 168, 37, 0.6),
+                0 2px 5px rgba(0, 0, 0, 0.2);
+            animation: petalMove 2.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes petalMove {
+            0%   { transform: translate(-50%, -100%) rotate(var(--angle)) translateY(0); }
+            100% { transform: translate(-50%, -100%) rotate(var(--angle)) translateY(-4px); }
+        }
+
+        /* Hide left side petals of right sunflower at night (no animation) */
+        body.started.night .sunflower.right .petal.hide-night {
+            display: none;
+        }
+
+        /* Center of flower */
+        .center {
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            background: radial-gradient(circle, #5a3a1a 0%, #4a2e0e 60%, #2a1a0b 100%);
+            border-radius: 50%;
+            top: 32%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: inset 0 0 13px #2a1a0b;
+            z-index: 5;
+        }
+
+        /* Seed pattern */
+        .center::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, #3a2410 2px, transparent 2px),
+                radial-gradient(circle, #2a1a0b 2px, transparent 2px);
+            background-size: 12px 12px, 12px 12px;
+            background-position: 0 0, 6px 6px;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        /* Eyes - normal */
+        .eye {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: white;
+            border-radius: 50%;
+            top: 38%;
+            overflow: hidden;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .eye::after {
+            content: "";
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: black;
+            border-radius: 50%;
+            top: 7px;
+            left: 7px;
+            transition: all 0.3s ease;
+        }
+
+        .eye-left  { left: 25px; }
+        .eye-right { left: 75px; }
+
+        /* Right sunflower blushing eyes - closed/happy */
+        .sunflower.right .eye {
+            height: 8px;
+            top: 45%;
+            background: transparent;
+            border-bottom: 4px solid black;
+            border-radius: 0;
+        }
+
+        .sunflower.right .eye::after {
+            display: none;
+        }
+
+        /* Blush cheeks for right sunflower */
+        .blush {
+            position: absolute;
+            width: 20px;
+            height: 15px;
+            background: radial-gradient(circle, rgba(255, 150, 150, 0.6), transparent);
+            border-radius: 50%;
+            top: 52%;
+            z-index: 10;
+        }
+
+        .blush-left { left: 10px; }
+        .blush-right { right: 10px; }
+
+        /* Smile - normal */
+        .smile {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-bottom: 5px solid black;
+            border-radius: 0 0 70px 70px;
+            top: 56%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        /* Right sunflower - shy smile */
+        .sunflower.right .smile {
+            width: 30px;
+            height: 30px;
+            border-radius: 0 0 50px 50px;
+            top: 58%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Start Screen -->
+    <div class="start-screen" id="startScreen">
+        <button class="start-button" onclick="startExperience()">🌻 Start 🌻</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Background Music -->
+        <audio id="bgMusic" loop>
+            <source src="love.mp3" type="audio/mpeg">
+        </audio>
+
+        <!-- Toggle Switch -->
+        <div class="toggle-container">
+            <span class="toggle-label">☀️ Day</span>
+            <div class="toggle-switch" onclick="toggleMode()">
+                <div class="toggle-slider"></div>
+            </div>
+            <span class="toggle-label">🌙 Night</span>
+        </div>
+
+        <!-- Speech Bubbles -->
+        <div class="speech-bubble bubble-left" id="bubbleLeft"></div>
+        <div class="speech-bubble bubble-right" id="bubbleRight"></div>
+
+        <!-- Sun -->
+        <div class="sun"></div>
+
+        <!-- Moon -->
+        <div class="moon"></div>
+
+        <!-- Stars -->
+        <div class="stars" id="stars"></div>
+
+        <!-- Ground -->
+        <div class="ground"></div>
+
+        <!-- Sunflowers Container -->
+        <div class="sunflowers-container">
+            <!-- Left Sunflower -->
+            <div class="sunflower left" id="sun1">
+                <div class="stem"></div>
+                <div class="leaf leaf-1"></div>
+                <div class="leaf leaf-2"></div>
+            </div>
+
+            <!-- Right Sunflower (Blushing) -->
+            <div class="sunflower right" id="sun2">
+                <div class="stem"></div>
+                <div class="leaf leaf-1"></div>
+                <div class="leaf leaf-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Start experience function
+        function startExperience() {
+            const startScreen = document.getElementById('startScreen');
+            const mainContent = document.getElementById('mainContent');
+            
+            // Hide start screen
+            startScreen.classList.add('hidden');
+            
+            // Show main content
+            setTimeout(() => {
+                mainContent.classList.add('visible');
+                document.body.classList.add('started');
+                updateSpeechBubbles(false);
+            }, 200);
+            
+            // Start music
+            startMusic();
+        }
+
+        // Create stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 70 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+
+        // Function to build sunflower with petals and face
+        function buildSunflower(target, isBlushing = false) {
+            let petalCount = 28;
+
+            // Create petals
+            for (let i = 0; i < petalCount; i++) {
+                let p = document.createElement("div");
+                p.className = "petal";
+                let ang = (360 / petalCount) * i;
+ 
+                if (target.classList.contains('right') && (ang >= 215 && ang <= 360)) {
+                    p.classList.add('hide-night');
+                }
+                
+                p.style.setProperty("--angle", ang + "deg");
+                p.style.transform = `translate(-50%, -100%) rotate(${ang}deg)`;
+                target.appendChild(p);
+            }
+
+            // Create center
+            let center = document.createElement("div");
+            center.className = "center";
+            target.appendChild(center);
+
+            // Add eyes
+            let eyeLeft = document.createElement("div");
+            eyeLeft.className = "eye eye-left";
+            center.appendChild(eyeLeft);
+
+            let eyeRight = document.createElement("div");
+            eyeRight.className = "eye eye-right";
+            center.appendChild(eyeRight);
+
+            // Add blush for right sunflower
+            if (isBlushing) {
+                let blushLeft = document.createElement("div");
+                blushLeft.className = "blush blush-left";
+                center.appendChild(blushLeft);
+
+                let blushRight = document.createElement("div");
+                blushRight.className = "blush blush-right";
+                center.appendChild(blushRight);
+            }
+
+            // Add smile
+            let smile = document.createElement("div");
+            smile.className = "smile";
+            center.appendChild(smile);
+        }
+
+        // Build both sunflowers
+        buildSunflower(document.getElementById("sun1"), false); // Normal
+        buildSunflower(document.getElementById("sun2"), true);  // Blushing
+
+        // Speech bubble elements
+        const bubbleLeft = document.getElementById('bubbleLeft');
+        const bubbleRight = document.getElementById('bubbleRight');
+        const bgMusic = document.getElementById('bgMusic');
+
+        // Start music on first interaction
+        let musicStarted = false;
+        function startMusic() {
+            if (!musicStarted) {
+                bgMusic.play().catch(e => console.log('Audio play failed:', e));
+                musicStarted = true;
+            }
+        }
+
+        // Update speech bubbles based on mode
+        function updateSpeechBubbles(isNight) {
+            if (isNight) {
+                bubbleLeft.textContent = "I will be always with you";
+                bubbleRight.textContent = "";
+                bubbleRight.classList.remove('show');
+            } else {
+                bubbleLeft.textContent = "I too love you";
+                bubbleRight.textContent = "I love you";
+                setTimeout(() => bubbleRight.classList.add('show'), 200);
+            }
+            bubbleLeft.classList.add('show');
+        }
+
+        // Toggle between day and night
+        function toggleMode() {
+            startMusic();
+            document.body.classList.toggle('night');
+            const isNight = document.body.classList.contains('night');
+            
+            // Hide bubbles during transition
+            bubbleLeft.classList.remove('show');
+            bubbleRight.classList.remove('show');
+            
+            // Show new messages after transition
+            setTimeout(() => updateSpeechBubbles(isNight), 500);
+        }
+    </script>
+</body>
+</html>
