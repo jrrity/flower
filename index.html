@@ -724,19 +724,19 @@
 
         // Update speech bubbles based on mode
         function updateSpeechBubbles(isNight) {
+    // Always hide both first
     bubbleLeft.classList.remove('show');
     bubbleRight.classList.remove('show');
+
+    // Right bubble should never speak
+    bubbleRight.textContent = "";
 
     setTimeout(() => {
         bubbleLeft.textContent = "I love you so much";
         bubbleLeft.classList.add('show');
-
-        if (!isNight) {
-            bubbleRight.textContent = "I love you so much";
-            bubbleRight.classList.add('show');
-        }
     }, 300);
 }
+
 
 
         // Toggle between day and night
@@ -756,6 +756,7 @@
 </body>
 
 </html>
+
 
 
 
