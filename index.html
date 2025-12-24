@@ -725,12 +725,12 @@
         // Update speech bubbles based on mode
         function updateSpeechBubbles(isNight) {
             if (isNight) {
-                bubbleLeft.textContent = "I will be always with you";
+                bubbleLeft.textContent = "I love you";
                 bubbleRight.textContent = "";
                 bubbleRight.classList.remove('show');
             } else {
-                bubbleLeft.textContent = "I too love you";
-                bubbleRight.textContent = "I love you";
+                bubbleLeft.textContent = "I love you";
+                bubbleRight.textContent = "";
                 setTimeout(() => bubbleRight.classList.add('show'), 200);
             }
             bubbleLeft.classList.add('show');
@@ -751,4 +751,5 @@
         }
     </script>
 </body>
+
 </html>
