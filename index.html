@@ -591,6 +591,7 @@
 
         <!-- Speech Bubbles -->
         <div class="speech-bubble bubble-left" id="bubbleLeft"></div>
+        <div class="speech-bubble bubble-right" id="bubbleRight"></div>
 
         <!-- Sun -->
         <div class="sun"></div>
@@ -723,15 +724,20 @@
 
         // Update speech bubbles based on mode
         function updateSpeechBubbles(isNight) {
-            if (isNight) {
-                bubbleLeft.textContent = "I love you so much";
-                bubbleRight.textContent = "";
-            } else {
-                bubbleLeft.textContent = "I love you so much";
-                setTimeout(() => bubbleRight.classList.add('show'), 200);
-            }
-            bubbleLeft.classList.add('show');
+    bubbleLeft.classList.remove('show');
+    bubbleRight.classList.remove('show');
+
+    setTimeout(() => {
+        bubbleLeft.textContent = "I love you so much";
+        bubbleLeft.classList.add('show');
+
+        if (!isNight) {
+            bubbleRight.textContent = "I love you so much";
+            bubbleRight.classList.add('show');
         }
+    }, 300);
+}
+
 
         // Toggle between day and night
         function toggleMode() {
@@ -750,6 +756,7 @@
 </body>
 
 </html>
+
 
 
 
