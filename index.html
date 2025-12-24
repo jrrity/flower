@@ -731,6 +731,7 @@
             } else {
                 bubbleLeft.textContent = "I love you";
                 bubbleRight.textContent = "";
+                bubbleRight.classList.remove('show');
                 setTimeout(() => bubbleRight.classList.add('show'), 200);
             }
             bubbleLeft.classList.add('show');
@@ -753,3 +754,4 @@
 </body>
 
 </html>
+
